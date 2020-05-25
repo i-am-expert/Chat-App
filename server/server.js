@@ -16,6 +16,42 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
     // when someone hits to index.html
     console.log('A new user just connected');
+
+    // Everyone who connects to home page
+    socket.emit('newMessage', {
+        from: 'Admin',
+        text: 'Welcome to the Chat App!',
+        createdAt: new Date().getTime()
+    });
+
+    // For everyone except curr user
+    socket.broadcast.emit('newMessage', {
+        from: 'Admin',
+        text: 'A new user joined',
+        createdAt: new Date().getTime()
+    });
+
+    socket.on('createMessage', (message) => {
+        console.log('Created message', message);
+        /*
+        // Broadcast to all including current user
+        io.emit('newMessage', {
+            from: message.from,
+            text: message.text,
+            createdAt: new Date().getTime()
+        });
+        */
+        
+        /*
+        // Broadcast to all except current user
+        socket.broadcast.emit('newMessage', {
+            from: message.from,
+            text: message.text,
+            createdAt: new Date().getTime()
+        });
+        */
+    });
+
     socket.on('disconnect', (socket) => {
         // when user disconnects (closes tab)
         console.log('User was disconnected');
