@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
         socket.emit('newMessage', generateMessage('Admin', `Welcome to ${params.room}!`));
 
         // For everyone except curr user
-        socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', 'A new user joined'));
+        socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined`));
 
         callback();
     })
