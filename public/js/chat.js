@@ -8,6 +8,17 @@ function scrollToBottom() {
 // after connection is made
 socket.on('connect', () => {
     console.log('Connected to Server');
+    let searchQuery = window.location.search.substring(1);
+    let params = JSON.parse('{"' + decodeURI(searchQuery).replace(/&/g, '","').replace(/\+/g, ' ').replace(/=/g,'":"') + '"}');
+    // 'join' is predefined event
+    socket.emit('join', params, function(err) {
+        if(err) {
+            alert(err);
+            window.location.href = "/";
+        } else {
+            console.log('No error');
+        }
+    })
     /*
     socket.emit('createMessage', {
         from: "Rishabh",
@@ -20,10 +31,22 @@ socket.on('disconnect', () => {
     console.log('Disconnected from Server');
 });
 
+socket.on('updateUsersList', function(users) {
+    let ol = document.createElement('ol');
+    users.forEach(function (user) {
+        let li = document.createElement('li');
+        li.innerHTML = user;
+        ol.appendChild(li);
+    })
+    let usersList = document.querySelector('#users');
+    usersList.innerHTML = '';
+    usersList.appendChild(ol);
+});
+
 socket.on('newMessage', (message) => {
     const formattedTime = moment(message.createdAt).format('LT');
-  const template = document.querySelector('#message-template').innerHTML;
-  const html = Mustache.render(template, {
+    const template = document.querySelector('#message-template').innerHTML;
+    const html = Mustache.render(template, {
     from: message.from,
     text: message.text,
     createdAt: formattedTime
@@ -49,7 +72,6 @@ document.querySelector('#submit-btn').addEventListener('click', function(e) {
     e.preventDefault();
 
     socket.emit('createMessage', {
-        from: 'User',
         text: document.querySelector('input[name="message"]').value
     }, function() {
         document.querySelector('input[name="message"]').value = '';
